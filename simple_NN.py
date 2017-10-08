@@ -1,11 +1,13 @@
 
-# Created by Sepehr Mohammadi
+# A Simple Neural Network
+# by Sepehr Mohammadi
 
 import numpy
 import scipy.special
+import matplotlib.pyplot
+get_ipython().magic('matplotlib inline')
 
-
-class neuralNetwork:
+class NeuralNetwork:
     def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
         self.inodes = inputnodes
         self.hnodes = hiddennodes
@@ -31,7 +33,7 @@ class neuralNetwork:
         hidden_errors = numpy.dot(self.who.T,output_errors)
         
         self.who += self.lr * numpy.dot((output_errors * final_outputs *(1- final_outputs)),numpy.transpose(hidden_outputs))
-        self.whi += self.lr * numpy.dot((hidden_errors * hidden_outputs *(1- hidden_outputs)),numpy.transpose(inputs))
+        self.wih += self.lr * numpy.dot((hidden_errors * hidden_outputs *(1- hidden_outputs)),numpy.transpose(inputs))
         
         pass
     
@@ -46,14 +48,36 @@ class neuralNetwork:
         
         return final_outputs
 
-
-input_nodes = 3
-output_nodes = 3
-hidden_nodes = 3
+input_nodes = 784
+hidden_nodes = 100
+output_nodes = 10
 
 learning_rate = 0.3
 
-n = neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
+n = NeuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
 
-n.query((1.0,0.5,-1.5))
+data_file = open('mnist_dataset/mnist_train_100.csv','r')
+data_list = data_file.readlines()
+data_file.close()
+
+for record in data_list:
+    all_values = record.split(',')
+    inputs = (numpy.asfarray(all_values[1:])/255.0 * 0.99) + 0.01
+    targets = numpy.zeros(output_nodes) + 0.01
+    targets[int(all_values[0])] = 0.99
+    n.train(inputs,targets)
+    pass
+
+all_values = test_data_list[0].split(',')
+print(all_values[0])
+
+
+image_array = numpy.asfarray(all_values[1:]).reshape((28,28))
+
+matplotlib.pyplot.imshow(image_array, cmap='Greys', interpolation='None')
+
+output = n.query((numpy.asfarray(all_values[1:]) / 255.0 * 0.99)+0.01)
+
+print("I think the number is ",numpy.argmax(output))
+
 
